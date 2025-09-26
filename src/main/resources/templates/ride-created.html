@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Tu viaje fue creado! - Ride Share E2E</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+
+        .header .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .welcome {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 300;
+            text-align: center;
+        }
+
+        .ride-details {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+
+        .ride-details h3 {
+            color: #667eea;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .detail-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 14px;
+        }
+
+        .detail-text {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .detail-value {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .message {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.8;
+            margin: 25px 0;
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            padding: 25px 30px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-text {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .price-highlight {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+
+            .header {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <!-- Header -->
+    <div class="header">
+        <span class="icon">🚗</span>
+        <h1>¡Viaje Creado Exitosamente!</h1>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <div class="welcome">
+            ¡Tu viaje está listo!
+        </div>
+
+        <p class="message">
+            Hemos registrado exitosamente tu solicitud de viaje. Ahora solo necesitas esperar a que un conductor acepte tu solicitud.
+        </p>
+
+        <!-- Ride Details -->
+        <div class="ride-details">
+            <h3>Detalles de tu Viaje</h3>
+
+            <div class="detail-item" th:if="${rideId}">
+                <div class="detail-icon">🆔</div>
+                <div class="detail-text">
+                    <div class="detail-label">ID del Viaje</div>
+                    <div class="detail-value" th:text="'#' + ${rideId}">#12345</div>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-icon">📍</div>
+                <div class="detail-text">
+                    <div class="detail-label">Destino</div>
+                    <div class="detail-value" th:text="${destinationName}">Arequipa</div>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-icon">🕒</div>
+                <div class="detail-text">
+                    <div class="detail-label">Fecha de Salida</div>
+                    <div class="detail-value" th:text="${#temporals.format(departureDate, 'dd/MM/yyyy HH:mm')}">25/12/2024 14:30</div>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-icon">💰</div>
+                <div class="detail-text">
+                    <div class="detail-label">Precio</div>
+                    <div class="detail-value">
+                        <span class="price-highlight">S/ <span th:text="${price}">25.00</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-icon">📊</div>
+                <div class="detail-text">
+                    <div class="detail-label">Estado</div>
+                    <div class="detail-value">
+                        <span class="status-badge">Solicitado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="message">
+            <strong>¿Qué sigue ahora?</strong><br>
+            • Los conductores disponibles verán tu solicitud<br>
+            • Recibirás una notificación cuando alguien acepte tu viaje<br>
+            • Podrás coordinar detalles adicionales con tu conductor<br>
+            • ¡Prepárate para un viaje seguro y cómodo!
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-text">
+            <strong>Ride Share E2E</strong><br>
+            Conectando personas, creando experiencias
+        </div>
+
+        <div class="footer-text">
+            Si tienes alguna pregunta, no dudes en contactarnos.<br>
+            📧 support@ridesharee2e.com | 📱 +51 999 888 777
+        </div>
+
+        <div class="footer-text" style="margin-top: 15px; font-size: 12px;">
+            Este correo fue enviado automáticamente. Por favor, no respondas a este mensaje.
+        </div>
+    </div>
+</div>
+</body>
+</html>

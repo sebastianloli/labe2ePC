@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.e2e.labe2e03.ride.domain.Status;
 
 import java.time.ZonedDateTime;
 
@@ -30,4 +31,7 @@ public class RideResponseDto {
 
     @NotNull
     private ZonedDateTime departureDate;
+
+    @NotNull
+    private Status status;
 }

@@ -12,7 +12,7 @@ import org.e2e.labe2e03.review.infrastructure.ReviewRepository;
 import org.e2e.labe2e03.ride.domain.Ride;
 import org.e2e.labe2e03.ride.domain.Status;
 import org.e2e.labe2e03.ride.exception.RideNotFoundException;
-import org.e2e.labe2e03.ride.infrastructure.RideRepository;
+import org.e2e.labe2e03.ride.RideRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

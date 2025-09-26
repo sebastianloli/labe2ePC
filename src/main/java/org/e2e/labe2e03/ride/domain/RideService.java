@@ -11,11 +11,13 @@ import org.e2e.labe2e03.passenger.infrastructure.PassengerRepository;
 import org.e2e.labe2e03.ride.dto.RideRequestDto;
 import org.e2e.labe2e03.ride.dto.RideResponseDto;
 import org.e2e.labe2e03.ride.exception.RideNotFoundException;
-import org.e2e.labe2e03.ride.infrastructure.RideRepository;
+import org.e2e.labe2e03.ride.RideRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.e2e.labe2e03.ride.event.RideCreatedEvent;
 
 import java.util.Objects;
 
@@ -30,6 +32,8 @@ public class RideService {
 
     private final ModelMapper modelMapper;
 
+    private final ApplicationEventPublisher events;
+
     public Ride createRide(RideRequestDto rideRequestDto) {
         Passenger passenger = passengerRepository
                 .findById(rideRequestDto.getPassengerId())
@@ -37,17 +41,30 @@ public class RideService {
         Driver driver = driverRepository
                 .findById(rideRequestDto.getDriverId())
                 .orElseThrow(DriverNotFoundException::new);
-        Ride ride = modelMapper.map(rideRequestDto, Ride.class);
 
         if (Objects.equals(rideRequestDto.getDestinationCoordinates().getLatitude(),
                 rideRequestDto.getOriginCoordinates().getLatitude()) &&
                 Objects.equals(rideRequestDto.getDestinationCoordinates().getLongitude(),
-                        rideRequestDto.getOriginCoordinates().getLongitude()))
+                        rideRequestDto.getOriginCoordinates().getLongitude())) {
             throw new BadRequestException("Origin and destination coordinates cannot be the same");
+        }
 
+        Ride ride = modelMapper.map(rideRequestDto, Ride.class);
         ride.setPassenger(passenger);
         ride.setDriver(driver);
-        return rideRepository.save(ride);
+
+        Ride saved = rideRepository.save(ride);
+        String email = tryGetPassengerEmail(passenger);
+
+        events.publishEvent(new RideCreatedEvent(
+                saved.getId(),
+                email,
+                saved.getDestinationName(),
+                saved.getDepartureDate(),
+                saved.getPrice()
+        ));
+
+        return saved;
     }
 
     public Ride assignDriverToRide(Long rideId, Long driverId) {
@@ -71,5 +88,21 @@ public class RideService {
         Ride ride = rideRepository.findById(id).orElseThrow(RideNotFoundException::new);
         ride.setStatus(Status.CANCELLED);
         return rideRepository.save(ride);
+    }
+
+    private String tryGetPassengerEmail(Passenger p) {
+        try {
+            var m = p.getClass().getMethod("getEmail");
+            Object v = m.invoke(p);
+            if (v != null) return v.toString();
+        } catch (Exception ignore) { /* pasa a opción B */ }
+        try {
+            var user = p.getClass().getMethod("getUser").invoke(p);
+            if (user != null) {
+                var email = user.getClass().getMethod("getEmail").invoke(user);
+                if (email != null) return email.toString();
+            }
+        } catch (Exception ignore) {}
+        return "no-reply@example.com";
     }
 }

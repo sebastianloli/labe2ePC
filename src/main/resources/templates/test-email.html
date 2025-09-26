@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correo de Prueba</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+        .content {
+            padding: 30px;
+            text-align: center;
+        }
+        .message {
+            color: #333;
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+        .email-badge {
+            background: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 5px;
+            color: #666;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🚗 Ride Share E2E</h1>
+        <p>Correo de Prueba</p>
+    </div>
+    <div class="content">
+        <h2>¡Hola!</h2>
+        <p class="message" th:text="${message}">Este es un correo de prueba</p>
+        <p>Enviado a:</p>
+        <div class="email-badge" th:text="${email}">email@example.com</div>
+        <p class="message">Si recibes este correo, significa que tu configuración de email está funcionando correctamente.</p>
+    </div>
+</div>
+</body>
+</html>
