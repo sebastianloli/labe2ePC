@@ -25,7 +25,8 @@ public class EmailService {
             h.setTo(to); h.setSubject(subject); h.setText(html, true);
             mailSender.send(mm);
         } catch (Exception e) {
-            throw new RuntimeException("Error enviando correo HTML", e);
+            e.printStackTrace();
+            throw new RuntimeException("Error enviando correo HTML" + e.getMessage(), e);
         }
     }
 }

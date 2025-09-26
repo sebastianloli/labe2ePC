@@ -2,13 +2,16 @@
   <configuration default="false" name="LabE2e03Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
     <option name="ALTERNATIVE_JRE_PATH" value="corretto-21" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <option name="envFilePaths">
-      <option value="MAIL_SMTP_USERNAME=sebastia.loli@utec.edu.pe" />
-    </option>
+    <envs>
+      <env name="DB_HOST" value="localhost" />
+      <env name="DB_NAME" value="postgres" />
+      <env name="DB_PASSWORD" value="postgres" />
+      <env name="DB_PORT" value="5432" />
+      <env name="DB_USER" value="postgres" />
+      <env name="MAIL_SMTP_PASSWORD" value="gvewutffzvxsfawz" />
+      <env name="MAIL_SMTP_USERNAME" value="sebastianlg1205@gmail.com" />
+    </envs>
     <module name="lab-e2e-03" />
-    <selectedOptions>
-      <option name="environmentVariables" />
-    </selectedOptions>
     <option name="SPRING_BOOT_MAIN_CLASS" value="org.e2e.labe2e03.LabE2e03Application" />
     <extension name="net.ashald.envfile">
       <option name="IS_ENABLED" value="false" />
