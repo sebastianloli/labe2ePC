@@ -2,16 +2,18 @@ package org.e2e.labe2e03.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.e2e.labe2e03.dto.request.NewFlightRequestDTO;
 import org.e2e.labe2e03.dto.response.FlightDTO;
 import org.e2e.labe2e03.entity.Flight;
 import org.e2e.labe2e03.repository.FlightRepository;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -34,12 +36,28 @@ public class FlightService {
         Flight flight = new Flight();
         flight.setAirlineName(dto.getAirlineName());
         flight.setFlightNumber(dto.getFlightNumber());
-        flight.setEstDepartureTime(LocalDateTime.parse(dto.getEstDepartureTime(), ISO_FORMATTER));
-        flight.setEstArrivalTime(LocalDateTime.parse(dto.getEstArrivalTime(), ISO_FORMATTER));
+        flight.setEstDepartureTime(parseDateTime(dto.getEstDepartureTime()));
+        flight.setEstArrivalTime(parseDateTime(dto.getEstArrivalTime()));
         flight.setAvailableSeats(dto.getAvailableSeats());
 
         Flight savedFlight = flightRepository.save(flight);
         return savedFlight.getId();
+    }
+
+    private LocalDateTime parseDateTime(String dateTimeStr) {
+        // Intentar parsear como ISO8601 primero
+        try {
+            return LocalDateTime.parse(dateTimeStr, ISO_FORMATTER);
+        } catch (DateTimeParseException e) {
+            // Intentar parsear como ZonedDateTime (formato del tester)
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy");
+                ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateTimeStr, formatter);
+                return zonedDateTime.toLocalDateTime();
+            } catch (DateTimeParseException ex) {
+                throw new IllegalArgumentException("Invalid date format: " + dateTimeStr);
+            }
+        }
     }
 
     @Async
@@ -54,8 +72,8 @@ public class FlightService {
                 Flight flight = new Flight();
                 flight.setAirlineName(dto.getAirlineName());
                 flight.setFlightNumber(dto.getFlightNumber());
-                flight.setEstDepartureTime(LocalDateTime.parse(dto.getEstDepartureTime(), ISO_FORMATTER));
-                flight.setEstArrivalTime(LocalDateTime.parse(dto.getEstArrivalTime(), ISO_FORMATTER));
+                flight.setEstDepartureTime(parseDateTime(dto.getEstDepartureTime()));
+                flight.setEstArrivalTime(parseDateTime(dto.getEstArrivalTime()));
                 flight.setAvailableSeats(dto.getAvailableSeats());
 
                 flightRepository.save(flight);
@@ -69,7 +87,6 @@ public class FlightService {
     }
 
     private void validateFlight(NewFlightRequestDTO dto) {
-        // Campos mandatorios
         if (dto.getAirlineName() == null || dto.getAirlineName().trim().isEmpty()) {
             throw new IllegalArgumentException("Airline name is mandatory");
         }
@@ -86,25 +103,21 @@ public class FlightService {
             throw new IllegalArgumentException("Available seats is mandatory");
         }
 
-        // Validar formato de flight number (A-Z 0-9, max 6 caracteres)
         if (!FLIGHT_NUMBER_PATTERN.matcher(dto.getFlightNumber()).matches()) {
             throw new IllegalArgumentException("Flight number must be A-Z 0-9, up to 6 characters");
         }
 
-        // Validar que departure < arrival
-        LocalDateTime departure = LocalDateTime.parse(dto.getEstDepartureTime(), ISO_FORMATTER);
-        LocalDateTime arrival = LocalDateTime.parse(dto.getEstArrivalTime(), ISO_FORMATTER);
+        LocalDateTime departure = parseDateTime(dto.getEstDepartureTime());
+        LocalDateTime arrival = parseDateTime(dto.getEstArrivalTime());
 
         if (!departure.isBefore(arrival)) {
             throw new IllegalArgumentException("Estimated departure time must be before estimated arrival time");
         }
 
-        // Validar available seats > 0
         if (dto.getAvailableSeats() <= 0) {
             throw new IllegalArgumentException("Available seats must be greater than 0");
         }
 
-        // Validar que el flight number no se repita
         if (flightRepository.existsByFlightNumber(dto.getFlightNumber())) {
             throw new IllegalArgumentException("Flight number cannot be repeated");
         }
@@ -116,11 +129,11 @@ public class FlightService {
         LocalDateTime toDate = null;
 
         if (estDepartureTimeFrom != null && !estDepartureTimeFrom.trim().isEmpty()) {
-            fromDate = LocalDateTime.parse(estDepartureTimeFrom, ISO_FORMATTER);
+            fromDate = parseDateTime(estDepartureTimeFrom);
         }
 
         if (estDepartureTimeTo != null && !estDepartureTimeTo.trim().isEmpty()) {
-            toDate = LocalDateTime.parse(estDepartureTimeTo, ISO_FORMATTER);
+            toDate = parseDateTime(estDepartureTimeTo);
         }
 
         List<Flight> flights = flightRepository.searchFlights(flightNumber, airlineName, fromDate, toDate);

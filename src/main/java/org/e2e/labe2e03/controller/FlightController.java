@@ -1,20 +1,16 @@
 package org.e2e.labe2e03.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.e2e.labe2e03.dto.request.FlightBookRequestDTO;
 import org.e2e.labe2e03.dto.request.NewFlightManyRequestDTO;
 import org.e2e.labe2e03.dto.request.NewFlightRequestDTO;
-import org.e2e.labe2e03.dto.response.BookingResponseDTO;
-import org.e2e.labe2e03.dto.response.FlightSearchResponseDTO;
-import org.e2e.labe2e03.dto.response.NewFlightManyResponseDTO;
-import org.e2e.labe2e03.dto.response.NewIdDTO;
+import org.e2e.labe2e03.dto.response.*;
 import org.e2e.labe2e03.security.JwtUtil;
 import org.e2e.labe2e03.service.BookingService;
 import org.e2e.labe2e03.service.FlightService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -30,12 +26,12 @@ public class FlightController {
     @PostMapping("/create")
     public ResponseEntity<NewIdDTO> createFlight(@RequestBody NewFlightRequestDTO dto) {
         Long flightId = flightService.createFlight(dto);
-        return ResponseEntity.ok(new NewIdDTO(String.valueOf(flightId)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new NewIdDTO(String.valueOf(flightId)));
     }
 
     @PostMapping("/create-many")
     public ResponseEntity<NewFlightManyResponseDTO> createManyFlights(@RequestBody NewFlightManyRequestDTO dto) {
-        // Operación asíncrona
         flightService.createFlightsAsync(dto.getFlights());
         return ResponseEntity.ok(new NewFlightManyResponseDTO("Flights creation started"));
     }
@@ -55,7 +51,6 @@ public class FlightController {
     @PostMapping("/book")
     public ResponseEntity<NewIdDTO> bookFlight(@RequestBody FlightBookRequestDTO dto,
                                                HttpServletRequest request) {
-        // Extraer userId del token JWT
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new IllegalArgumentException("Authorization token is required");
@@ -65,7 +60,8 @@ public class FlightController {
         Long userId = jwtUtil.extractUserId(token);
 
         Long bookingId = bookingService.bookFlight(dto, userId);
-        return ResponseEntity.ok(new NewIdDTO(String.valueOf(bookingId)));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new NewIdDTO(String.valueOf(bookingId)));
     }
 
     @GetMapping("/book/{id}")
