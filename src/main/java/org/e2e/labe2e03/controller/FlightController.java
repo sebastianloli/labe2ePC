@@ -60,8 +60,7 @@ public class FlightController {
         Long userId = jwtUtil.extractUserId(token);
 
         Long bookingId = bookingService.bookFlight(dto, userId);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new NewIdDTO(String.valueOf(bookingId)));
+        return ResponseEntity.ok(new NewIdDTO(String.valueOf(bookingId))); // Cambiado a .ok()
     }
 
     @GetMapping("/book/{id}")

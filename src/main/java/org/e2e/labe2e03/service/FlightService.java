@@ -26,7 +26,7 @@ public class FlightService {
 
     private final FlightRepository flightRepository;
 
-    private static final Pattern FLIGHT_NUMBER_PATTERN = Pattern.compile("^[A-Z0-9]{1,6}$");
+    private static final Pattern FLIGHT_NUMBER_PATTERN = Pattern.compile("^[A-Z]{2,3}[0-9]{3}$");
     private static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
 
     @Transactional
@@ -45,13 +45,12 @@ public class FlightService {
     }
 
     private LocalDateTime parseDateTime(String dateTimeStr) {
-        // Intentar parsear como ISO8601 primero
         try {
             return LocalDateTime.parse(dateTimeStr, ISO_FORMATTER);
         } catch (DateTimeParseException e) {
             // Intentar parsear como ZonedDateTime (formato del tester)
             try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", java.util.Locale.ENGLISH);
                 ZonedDateTime zonedDateTime = ZonedDateTime.parse(dateTimeStr, formatter);
                 return zonedDateTime.toLocalDateTime();
             } catch (DateTimeParseException ex) {
