@@ -32,8 +32,9 @@ public class FlightController {
 
     @PostMapping("/create-many")
     public ResponseEntity<NewFlightManyResponseDTO> createManyFlights(@RequestBody NewFlightManyRequestDTO dto) {
-        flightService.createFlightsAsync(dto.getFlights());
-        return ResponseEntity.ok(new NewFlightManyResponseDTO("Flights creation started"));
+        flightService.createFlightsAsync(dto.getInputs()); // Cambiar de getFlights() a getInputs()
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new NewFlightManyResponseDTO("Flights creation started"));
     }
 
     @GetMapping("/search")

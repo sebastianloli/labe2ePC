@@ -1,14 +1,14 @@
 package org.e2e.labe2e03.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.e2e.labe2e03.dto.request.FlightBookRequestDTO;
 import org.e2e.labe2e03.dto.response.BookingResponseDTO;
 import org.e2e.labe2e03.entity.Booking;
 import org.e2e.labe2e03.entity.Flight;
 import org.e2e.labe2e03.entity.User;
 import org.e2e.labe2e03.repository.BookingRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,16 +28,13 @@ public class BookingService {
 
     @Transactional
     public Long bookFlight(FlightBookRequestDTO dto, Long userId) {
-        // Validar que flightId sea mandatorio
         if (dto.getFlightId() == null) {
             throw new IllegalArgumentException("Flight ID is mandatory");
         }
 
-        // Buscar el vuelo
         Flight flight = flightService.findById(dto.getFlightId())
                 .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
 
-        // Buscar el usuario
         User user = userService.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -67,7 +64,6 @@ public class BookingService {
             throw new IllegalArgumentException("Customer cannot book a flight that overlaps with another");
         }
 
-        // Crear el booking
         Booking booking = new Booking();
         booking.setBookingDate(LocalDateTime.now());
         booking.setFlight(flight);
@@ -81,7 +77,6 @@ public class BookingService {
         try {
             emailService.sendBookingConfirmation(savedBooking);
         } catch (Exception e) {
-            // Log error pero no fallar la transacción
             System.err.println("Error sending email: " + e.getMessage());
         }
 
@@ -95,7 +90,11 @@ public class BookingService {
     private BookingResponseDTO convertToDTO(Booking booking) {
         BookingResponseDTO dto = new BookingResponseDTO();
         dto.setId(String.valueOf(booking.getId()));
-        dto.setBookingDate(booking.getBookingDate().format(ISO_FORMATTER));
+
+        // Truncar a segundos para evitar nanosegundos en el formato
+        LocalDateTime truncated = booking.getBookingDate().withNano(0);
+        dto.setBookingDate(truncated.format(ISO_FORMATTER));
+
         dto.setFlightId(String.valueOf(booking.getFlight().getId()));
         dto.setFlightNumber(booking.getFlight().getFlightNumber());
         dto.setCustomerId(String.valueOf(booking.getCustomer().getId()));

@@ -66,23 +66,16 @@ public class FlightService {
 
         for (NewFlightRequestDTO dto : flights) {
             try {
-                validateFlight(dto);
-
-                Flight flight = new Flight();
-                flight.setAirlineName(dto.getAirlineName());
-                flight.setFlightNumber(dto.getFlightNumber());
-                flight.setEstDepartureTime(parseDateTime(dto.getEstDepartureTime()));
-                flight.setEstArrivalTime(parseDateTime(dto.getEstArrivalTime()));
-                flight.setAvailableSeats(dto.getAvailableSeats());
-
-                flightRepository.save(flight);
-                log.info("Created flight: {}", flight.getFlightNumber());
+                // Reutilizar el método createFlight que ya tiene todas las validaciones
+                Long flightId = createFlight(dto);
+                log.info("Created flight: {} with ID: {}", dto.getFlightNumber(), flightId);
             } catch (Exception e) {
                 log.error("Error creating flight {}: {}", dto.getFlightNumber(), e.getMessage());
+                // No lanzar la excepción, solo registrarla para que continúe con los demás vuelos
             }
         }
 
-        log.info("Finished async creation of flights");
+        log.info("Finished async creation of {} flights", flights.size());
     }
 
     private void validateFlight(NewFlightRequestDTO dto) {

@@ -1,5 +1,6 @@
 package org.e2e.labe2e03.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,5 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NewFlightManyRequestDTO {
-    private List<NewFlightRequestDTO> flights;
+    @JsonProperty("inputs")
+    private List<NewFlightRequestDTO> inputs;
 }
